@@ -65,7 +65,7 @@
 * Ensure compresed public key is used for SIN generation even if uncompressed key was provided (fix #3432) (#3433) @CherryDT
 * After login, redirect user to the main page even if a root app configured (#3429) @NicolasDorier
 * docker-entrypoint would crash if missing ssh pubkey, but not the private key @NicolasDorier
-* Error messages when starting BTCPay Server where not shown (Fix #3404) @NicolasDorier
+* Error messages when starting Blockchain Merchant where not shown (Fix #3404) @NicolasDorier
 
 ### Improvements:
 
@@ -107,7 +107,7 @@
 
 ## 1.4.0
 
-BTCPay Server started in August 2017 and meanwhile has been evolving incrementally thanks to the feedback of the community.
+Blockchain Merchant started in August 2017 and meanwhile has been evolving incrementally thanks to the feedback of the community.
 
 It was finally time to cleanup the UI/UX and technical debt we accumulated over the years.
 
@@ -128,7 +128,7 @@ Note that you do not need to update libseccomp2, our update process does this fo
 * Support for new TLS version of SMTP server (#3202) @NicolasDorier
 * Greenfield: Added field "StoreId" to a Payment Request (#3223) @woutersamaey
 * Greenfield: Can create a payment request without specifying currency (would then use store's default currency) (#3222) @NicolasDorier
-* Add login code, for easy login to BTCPay Server via a mobile device (#2504) @Kukks
+* Add login code, for easy login to Blockchain Merchant via a mobile device (#2504) @Kukks
 * Add LNUrl Auth support as second factor auth (#3083) @Kukks
 * Batch unarchive invoices (#3264) @dennisreimann
 
@@ -141,7 +141,7 @@ Note that you do not need to update libseccomp2, our update process does this fo
 * Greenfield: Creating a payment request would fail if expiry was specified (#3222) @NicolasDorier
 * In wallet's receive if you copy a p2sh address, it would be truncated (#3218) @dennisreimann
 * Shopify: Fix partial payments. Generate an invoice based on outstanding amount instead of total. (#3193 #3203) @Kukks
-* BTCPay Server instance sends 2 emails after invoice is set as expired, paid or confirmed/complete (#968) @NicolasDorier
+* Blockchain Merchant instance sends 2 emails after invoice is set as expired, paid or confirmed/complete (#968) @NicolasDorier
 * Greenfield: Payment Method update was impossible if using internal ln node while being guest (#2860) @NicolasDorier
 * Checkout: Error when changing payment method in invoice (#3075) @dennisreimann
 * Greenfield: `created` field of payment request should be a unix timestamp @woutersamaey (#3221)
@@ -351,7 +351,7 @@ Minor bug fixes release, update recommended for shared hosting. (#2851)
 * If `Only enable the payment method after user explicitly chooses it` is enabled for a store and a payment method is unavailable, the server could become unresponsive. @NicolasDorier
 * Authorize API key page was broken when trying to select specific stores (#2858) @bolatovumar
 * The /docs page was broken in 1.2.3 due to CSP @NicolasDorier
-* Fixing crashes happening when someone migrate from BTCPay Server altcoins edition back to bitcoin only @Kukks
+* Fixing crashes happening when someone migrate from Blockchain Merchant altcoins edition back to bitcoin only @Kukks
 
 ## 1.2.3
 
@@ -404,7 +404,7 @@ See [1](https://huntr.dev/bounties/ffabdac8-7280-4806-b70c-9b0d1aafbb6e/), [2](h
 * Add payjoin to hot wallet setup and turn on by default (#2450) @dennisreimann
 * Add permission code to API page (#2599)  @woutersamaey @dennisreimann
 * Introduce Server paging for Payouts List (#2564) @kukks @dennisreimann
-* Hide referer URL to hide our BTCPay Server URL (#2655) @woutersamaey
+* Hide referer URL to hide our Blockchain Merchant URL (#2655) @woutersamaey
 * Deeper accessibility for plugin system @kukks
 * Add webhook delivery status indicator (#2679) @bolatovumar
 * Auto-select store when creating a new invoice (#2680) @bolatovumar
@@ -465,7 +465,7 @@ See [1](https://huntr.dev/bounties/ffabdac8-7280-4806-b70c-9b0d1aafbb6e/), [2](h
 
 * During refund or payout, some payments issued from BTCPay were not properly detected. (#2513 #2518) @Kukks @NicolasDorier
 * Fix payment button steps and validation range (#2506 #2503) @Kukks
-* The local culture of the server could break some feature on BTCPay Server (#2512) @NicolasDorier
+* The local culture of the server could break some feature on Blockchain Merchant (#2512) @NicolasDorier
 * Make sure unaccounted payments (double spent payments, or payjoin original transaction), are not accounted by the payment requests and crowdfund app @NicolasDorier
 * Coinswitch page was not reflecting correctly in the side navigation @kukks
 * Coinswitch showed as enabled when it was configured but disabled @kukks
@@ -628,7 +628,7 @@ This release is trying some improvement to decrease the chances of being falsy f
 * If a label on a wallet's transaction does not have color, it should still show it @NicolasDorier
 * Do not include Tor Location header when querying the modal checkout (see #2180) @Kukks
 * Webhooks should not be randomly deleted anymore. @NicolasDorier
-* Fix header not showing properly after login to BTCPay Server (see #2155) @dennisreimann
+* Fix header not showing properly after login to Blockchain Merchant (see #2155) @dennisreimann
 * Bug: Searching invoices was timing out if there was too much invoices @rockstardev @Kukks
 
 ### Miscellaneous:
@@ -730,7 +730,7 @@ It turns out this is not compatible with every wallets.
 * UI: Improve payment request design (ref #2011) (@dennisreimann @dstrukt) (ref #2011) (@dennisreimann @dstrukt)
 * UI: Improve pull payments design (ref #2011) (@dennisreimann @dstrukt)
 * UI: Improvement of the modal checkout overlay  (see [this comment](https://github.com/btcpayserver/btcpayserver/pull/1930#issuecomment-701298441)) (@dennisreimann)
-* BTCPay Server vault operations can now be retried without having to refresh the page (@NicolasDorier)
+* Blockchain Merchant vault operations can now be retried without having to refresh the page (@NicolasDorier)
 * UX: Warning and hint system for stores not completely set up (@dennisreimann @rockstardev)
 * Greenfield (Breaking change): Invoice state renamed `Confirmed/Complete` to `Settled`. (@NicolasDorier)
 * Greenfield (Breaking change): Invoice state renamed `Paid` to `Processing`. (@NicolasDorier)
@@ -787,7 +787,7 @@ It turns out this is not compatible with every wallets.
 ### Bug fixes:
 
 * Mark Shopify orders paid on invoice payment confirmed @rockstardev
-* Fix: notification of new BTCPay Server not showing properly @rockstardev
+* Fix: notification of new Blockchain Merchant not showing properly @rockstardev
 * Fix: When collapsed, the sync window blocks the version text in the footer #1941 @Kukks
 * Fix: Not possible to delete a user if U2F is enabled. @Kukks
 * Fix onion location not always working #1947 @Kukks
@@ -799,7 +799,7 @@ It turns out this is not compatible with every wallets.
 ### Bug fixes:
 
 * Mark Shopify orders paid on invoice payment confirmed @rockstardev
-* Fix: notification of new BTCPay Server not showing properly @rockstardev
+* Fix: notification of new Blockchain Merchant not showing properly @rockstardev
 * Fix: When collapsed, the sync window blocks the version text in the footer #1941 @Kukks
 * Fix: Not possible to delete a user if U2F is enabled. @Kukks
 * Fix onion location not always working #1947 @Kukks
@@ -809,7 +809,7 @@ It turns out this is not compatible with every wallets.
 ### Improvements:
 
 * Add specter desktop to the list of Bitcoin RPC compatible wallet @NicolasDorier
-* If some operation using BTCPay Server Vault fails, add a retry button so the user does not have to refresh the page. #1937 @NicolasDorier
+* If some operation using Blockchain Merchant Vault fails, add a retry button so the user does not have to refresh the page. #1937 @NicolasDorier
 * Do not show password in clear text in email configuration (Fix #1790) @NicolasDorier
 * Showing CheckForNewVersions checkbox only if BTCPAY_UPDATEURL is set @rockstardev
 * Add Created date to user, add verified column in list and make user list use same model as modern lists @Kukks
@@ -841,7 +841,7 @@ It turns out this is not compatible with every wallets.
 * Update PSBT and PSBT sent to Hardware wallet will include `non_witness_utxo` by default, when possible, to match Bitcoin Core 0.20.1 behavior. @NicolasDorier
 * Adjust invoice badge styling (#1906) @bolatovumar
 * Invoice notification email improvements (#1875) @dennisreimann
-* Improvement of the UX flow for requesting an API Key of a BTCPay Server user (#1898) @dennisreimann
+* Improvement of the UX flow for requesting an API Key of a Blockchain Merchant user (#1898) @dennisreimann
 * Don't send notification email for expired invoices @dennisreimann
 * Greenfield API: Add `Roles` property to the user data. @dennisreimann
 * Remove Changelly integration @Kukks
@@ -921,7 +921,7 @@ Those are low risk injection vulnerabilities.
 
 ### Altcoins
 
-* BTCPay Server build is Bitcoin Only by default. If you are developer and wants to work on the altcoins build, please read [the documentation](https://docs.btcpayserver.org/LocalDevelopment/).
+* Blockchain Merchant build is Bitcoin Only by default. If you are developer and wants to work on the altcoins build, please read [the documentation](https://docs.btcpayserver.org/LocalDevelopment/).
 * Show sync progress for monero and show amount of monero payment #1729 @xpayserver
 
 ## 1.0.5.3:

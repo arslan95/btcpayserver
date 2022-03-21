@@ -111,14 +111,14 @@
 @if (Model.Disabled.Any())
 {
     <div class="alert alert-danger mb-4 d-flex align-items-center justify-content-between">
-        Some plugins were disabled due to fatal errors. They may be incompatible with this version of BTCPay Server.
+        Some plugins were disabled due to fatal errors. They may be incompatible with this version of Blockchain Merchant.
        <button class="btn btn-danger" data-bs-toggle="collapse" data-bs-target="#disabled-plugins">View disabled plugins</button>
     </div>
 }
 @if (Model.Commands.Any())
 {
     <div class="alert alert-info mb-4 d-flex align-items-center justify-content-between">
-        You need to restart BTCPay Server in order to update your active plugins.
+        You need to restart Blockchain Merchant in order to update your active plugins.
         @if (Model.CanShowRestart)
         {
             <form method="post" asp-action="Maintenance" class="mt-2">

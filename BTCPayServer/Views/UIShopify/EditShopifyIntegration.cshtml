@@ -21,7 +21,7 @@
                 </a>
             </small>
         </h3>
-        <p>Connect BTCPay Server to your Shopify checkout experience to accept Bitcoin.</p>
+        <p>Connect Blockchain Merchant to your Shopify checkout experience to accept Bitcoin.</p>
 
         @if (!ViewContext.ModelState.IsValid)
         {
@@ -69,7 +69,7 @@
                     </kbd>
                 </div>
                 <p class="alert alert-warning">
-                    In Shopify please add a payment method at <a target="_blank" href="@shopifyUrl/admin/settings/payments" class="fw-bold" rel="noreferrer noopener"> Settings &gt; Payments &gt; Manual Payment Methods</a> with the name <kbd class="bg-dark">Bitcoin with BTCPay Server</kbd>
+                    In Shopify please add a payment method at <a target="_blank" href="@shopifyUrl/admin/settings/payments" class="fw-bold" rel="noreferrer noopener"> Settings &gt; Payments &gt; Manual Payment Methods</a> with the name <kbd class="bg-dark">Bitcoin with Blockchain Merchant</kbd>
                 </p>
                 <p class="alert alert-success">
                     Orders on <b>@Model.ShopName</b>.myshopify.com will be marked as paid on successful invoice payment.

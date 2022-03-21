@@ -24,7 +24,7 @@ namespace BTCPayServer.Services
         public bool AllowHotWalletForAll { get; set; }
         [Display(Name = "Allow non-admins to import hot wallets for their stores")]
         public bool AllowHotWalletRPCImportForAll { get; set; }
-        [Display(Name = "Check releases on GitHub and notify when new BTCPay Server version is available")]
+        [Display(Name = "Check releases on GitHub and notify when new Blockchain Merchant version is available")]
         public bool CheckForNewVersions { get; set; }
         [Display(Name = "Disable notifications from automatically showing (no websockets)")]
         public bool DisableInstantNotifications { get; set; }

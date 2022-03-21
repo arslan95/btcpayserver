@@ -29,7 +29,7 @@ namespace BTCPayServer.Tests
             Assert.Equal("nl-NL", lang1?.Code);
 
             // Most common format. First option does not have a quality score. Others do in descending order. This time the first option includes a country.
-            // Result should be nl-NL (because the default weight is 1 for nl-BE and it does not exist in BTCPay Server, but nl-NL does and applies too for language "nl")
+            // Result should be nl-NL (because the default weight is 1 for nl-BE and it does not exist in Blockchain Merchant, but nl-NL does and applies too for language "nl")
             var lang2 = languageService.FindLanguageInAcceptLanguageHeader("nl-BE,fr;q=0.7,en;q=0.5");
             Assert.NotNull(lang2);
             Assert.Equal("nl-NL", lang2?.Code);

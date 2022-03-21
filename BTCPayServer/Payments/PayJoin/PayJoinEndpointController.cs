@@ -183,7 +183,7 @@ namespace BTCPayServer.Payments.PayJoin
                     return BadRequest(CreatePayjoinError("original-psbt-rejected", "The PSBT should be finalized"));
                 ctx.OriginalTransaction = psbt.ExtractTransaction();
             }
-            // BTCPay Server implementation support a transaction instead of PSBT
+            // Blockchain Merchant implementation support a transaction instead of PSBT
             else
             {
                 psbtFormat = false;
@@ -516,7 +516,7 @@ namespace BTCPayServer.Payments.PayJoin
                     .ToDictionary(pair => pair.Key, pair => pair.Value)
             });
             ctx.Success();
-            // BTCPay Server support PSBT set as hex
+            // Blockchain Merchant support PSBT set as hex
             if (psbtFormat && HexEncoder.IsWellFormed(rawBody))
             {
                 return Ok(newPsbt.ToHex());
@@ -525,7 +525,7 @@ namespace BTCPayServer.Payments.PayJoin
             {
                 return Ok(newPsbt.ToBase64());
             }
-            // BTCPay Server should returns transaction if received transaction
+            // Blockchain Merchant should returns transaction if received transaction
             else
                 return Ok(newTx.ToHex());
         }

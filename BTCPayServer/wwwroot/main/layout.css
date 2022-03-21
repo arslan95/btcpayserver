@@ -179,7 +179,7 @@
 /* Logo */
 @media (max-width: 575px) {
     .logo {
-        width: 1.125rem;
+        width: 1.3rem;
         height: 2rem;
     }
 
@@ -190,7 +190,7 @@
 
 @media (min-width: 576px) {
     .logo {
-        width: 4.6rem;
+        width: 2rem;
         height: 2rem;
     }
 

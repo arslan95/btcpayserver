@@ -38,7 +38,7 @@ If applicable, add screenshots to help explain your problem.
 -->
 
 **Your BTCPay Environment (please complete the following information):**
-- BTCPay Server Version:    <!--[available in the right bottom corner of footer] -->
+- Blockchain Merchant Version:    <!--[available in the right bottom corner of footer] -->
 - Deployment Method:        <!--[e.g. Docker, Manual, Third-Party-host]-->
 - Browser:                  <!--[e.g. Chrome, Safari]-->
 

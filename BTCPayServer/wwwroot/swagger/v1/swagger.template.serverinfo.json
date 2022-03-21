@@ -36,7 +36,7 @@
                 "properties": {
                     "version": {
                         "type": "string",
-                        "description": "BTCPay Server version"
+                        "description": "Blockchain Merchant version"
                     },
                     "onion": {
                         "type": "string",

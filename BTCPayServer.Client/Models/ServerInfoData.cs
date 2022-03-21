@@ -5,7 +5,7 @@ namespace BTCPayServer.Client.Models
     public class ServerInfoData
     {
         /// <summary>
-        /// the BTCPay Server version
+        /// the Blockchain Merchant version
         /// </summary>
         public string Version { get; set; }
 

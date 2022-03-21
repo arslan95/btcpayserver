@@ -83,7 +83,7 @@ namespace BTCPayServer.Services
         public override string ToString()
         {
             StringBuilder txt = new StringBuilder();
-            txt.Append(CultureInfo.InvariantCulture, $"© BTCPay Server v{Version}");
+            txt.Append(CultureInfo.InvariantCulture, $"© Blockchain Merchant v{Version}");
             if (AltcoinsVersion)
                 txt.Append(" (Altcoins)");
             if (!Environment.IsProduction() || !Build.Equals("Release", StringComparison.OrdinalIgnoreCase))

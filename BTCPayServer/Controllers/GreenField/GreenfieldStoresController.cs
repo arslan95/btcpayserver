@@ -66,7 +66,7 @@ namespace BTCPayServer.Controllers.Greenfield
             if (!_storeRepository.CanDeleteStores())
             {
                 return this.CreateAPIError("unsupported",
-                    "BTCPay Server is using a database server that does not allow you to remove stores.");
+                    "Blockchain Merchant is using a database server that does not allow you to remove stores.");
             }
             await _storeRepository.RemoveStore(storeId, _userManager.GetUserId(User));
             return Ok();

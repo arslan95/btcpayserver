@@ -78,7 +78,7 @@ window.BTCPayShopifyIntegrationModule = function () {
                 return response.json();
             }).catch(function () {
                 if (!backgroundCheck)
-                    alert("Could not initiate BTCPay Server payment method, try again later.");
+                    alert("Could not initiate Blockchain Merchant payment method, try again later.");
             })
     }
 
@@ -155,7 +155,7 @@ window.BTCPayShopifyIntegrationModule = function () {
         insertElement(buttonElement, pageItems.orderConfirmed);
     }
 
-    if (["bitcoin", "btc", "btcpayserver", "btcpay server"].filter(value => pageItems.paymentMethod.innerText.toLowerCase().indexOf(value) !== -1).length === 0) {
+    if (["bitcoin", "btc", "btcpayserver", "Blockchain Merchant"].filter(value => pageItems.paymentMethod.innerText.toLowerCase().indexOf(value) !== -1).length === 0) {
         return;
     }
     showPaymentInstructions();

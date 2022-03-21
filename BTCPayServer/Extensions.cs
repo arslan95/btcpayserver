@@ -372,7 +372,7 @@ namespace BTCPayServer
 #if !ALTCOINS
             var onlyBTC = supportedChains.Count == 1 && supportedChains.First() == "BTC";
             if (!onlyBTC)
-                throw new ConfigException($"This build of BTCPay Server does not support altcoins");
+                throw new ConfigException($"This build of Blockchain Merchant does not support altcoins");
 #endif
             var result = networkProvider.Filter(supportedChains.ToArray());
             foreach (var chain in supportedChains)

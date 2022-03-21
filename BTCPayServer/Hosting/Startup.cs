@@ -59,7 +59,7 @@ namespace BTCPayServer.Hosting
         {
             services.AddMemoryCache();
             services.AddDataProtection()
-                .SetApplicationName("BTCPay Server")
+                .SetApplicationName("Blockchain Merchant")
                 .PersistKeysToFileSystem(new DirectoryInfo(new DataDirectories().Configure(Configuration).DataDir));
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -91,7 +91,7 @@ namespace BTCPayServer.Hosting
             services.AddSignalR();
             services.AddFido2(options =>
                 {
-                    options.ServerName = "BTCPay Server";
+                    options.ServerName = "Blockchain Merchant";
                 })
                 .AddCachedMetadataService(config =>
                 {
@@ -105,7 +105,7 @@ namespace BTCPayServer.Hosting
                 var httpContext = provider.GetService<IHttpContextAccessor>();
                 return new Fido2Configuration()
                 {
-                    ServerName = "BTCPay Server",
+                    ServerName = "Blockchain Merchant",
                     Origin = $"{httpContext.HttpContext.Request.Scheme}://{httpContext.HttpContext.Request.Host}",
                     ServerDomain = httpContext.HttpContext.Request.Host.Host
                 };

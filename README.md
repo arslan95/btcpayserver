@@ -1,11 +1,11 @@
-# BTCPay Server
+# Blockchain Merchant
 
-![BTCPay Server](BTCPayServer/wwwroot/img/btc_pay_BG_twitter.png)
+![Blockchain Merchant](BTCPayServer/wwwroot/img/btc_pay_BG_twitter.png)
 
 <h3 align="center">
   Accept Bitcoin payments ₿
 </h3>
-<p align="center"> BTCPay Server is a free and open-source Bitcoin payment processor which allows you to accept bitcoin without fees or intermediaries.
+<p align="center"> Blockchain Merchant is a free and open-source Bitcoin payment processor which allows you to accept bitcoin without fees or intermediaries.
 </p>
 <p align="center">
   <a href="https://circleci.com/gh/btcpayserver/btcpayserver">
@@ -105,7 +105,7 @@
 
 ## 🚀 Getting Started
 
-Firstly, decide if you want to host an instance yourself or use a [third-party host](https://docs.btcpayserver.org/ThirdPartyHosting/). If you've chosen to self-host, there are plenty of documented [ways to deploy BTCPay Server](https://docs.btcpayserver.org/Deployment/).
+Firstly, decide if you want to host an instance yourself or use a [third-party host](https://docs.btcpayserver.org/ThirdPartyHosting/). If you've chosen to self-host, there are plenty of documented [ways to deploy Blockchain Merchant](https://docs.btcpayserver.org/Deployment/).
 
 After successful deployment, make sure to check our [getting started](https://docs.btcpayserver.org/RegisterAccount/) and [walkthrough](https://docs.btcpayserver.org/Walkthrough/) guides. In case you would like to use Lightning Network, see [Lightning guide](https://docs.btcpayserver.org/LightningNetwork/).
 
@@ -113,11 +113,11 @@ After successful deployment, make sure to check our [getting started](https://do
 
 Please check out our [official website](https://btcpayserver.org/), [complete documentation](https://docs.btcpayserver.org/) and [FAQ](https://docs.btcpayserver.org/FAQ/) for more details.
 
-If you have trouble using BTCPay Server, consider joining [communities listed on the official website](https://btcpayserver.org/#communityCTA) to get help from other contributors. Only create a [GitHub issue](https://github.com/btcpayserver/btcpayserver/issues/new/choose) for technical issues you can't resolve through other channels or feature requests you've validated with other members of the community.
+If you have trouble using Blockchain Merchant, consider joining [communities listed on the official website](https://btcpayserver.org/#communityCTA) to get help from other contributors. Only create a [GitHub issue](https://github.com/btcpayserver/btcpayserver/issues/new/choose) for technical issues you can't resolve through other channels or feature requests you've validated with other members of the community.
 
 ## 🤝 Contributing
 
-BTCPay Server is built and maintained entirely by volunteer contributors around the internet. We welcome and appreciate new contributions.
+Blockchain Merchant is built and maintained entirely by volunteer contributors around the internet. We welcome and appreciate new contributions.
 
 If you're a developer looking to help, but you're not sure where to begin, check the [good first issue label](https://github.com/btcpayserver/btcpayserver/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), which contains small pieces of work that have been specifically flagged as being friendly to new contributors.
 
@@ -135,7 +135,7 @@ To begin developing locally, visit our [local development guide](https://docs.bt
 
 ### How to build
 
-While the documentation advises using docker-compose, you may want to build BTCPay Server yourself.
+While the documentation advises using docker-compose, you may want to build Blockchain Merchant yourself.
 
 First, install .NET Core SDK v6.0 as specified by the [Microsoft website](https://dotnet.microsoft.com/download/dotnet-core/6.0).
 
@@ -153,7 +153,7 @@ On linux:
 
 ### How to run
 
-Use the `run` scripts to run BTCPay Server, this example shows how to print the available command-line arguments of BTCPay Server.
+Use the `run` scripts to run Blockchain Merchant, this example shows how to print the available command-line arguments of Blockchain Merchant.
 
 On Powershell:
 
@@ -186,18 +186,18 @@ Then use the `Docker-Regtest-https` debug profile.
 ### Other dependencies
 
 For more information, see the documentation:
-[How to deploy a BTCPay Server instance](https://docs.btcpayserver.org/Deployment/).
+[How to deploy a Blockchain Merchant instance](https://docs.btcpayserver.org/Deployment/).
 
 ### 🧪 API
 
-BTCPay Server has two APIs:
+Blockchain Merchant has two APIs:
 
 - **Greenfield API (New)**
   - [Greenfield API documentation](https://docs.btcpayserver.org/API/Greenfield/v1/)
   - [Greenfield API examples with CURL](https://docs.btcpayserver.org/GreenFieldExample/)
 - **Legacy API**
 
-The **Greenfield API** is our brand-new API which is still in development. Once complete, it will allow you to run BTCPay Server headlessly.
+The **Greenfield API** is our brand-new API which is still in development. Once complete, it will allow you to run Blockchain Merchant headlessly.
 The **Legacy API**, is fully compatible with [BitPay's API](https://bitpay.com/api/). It has limited features, but allows instant migration from BitPay.
 
 ## 💚 Community
@@ -206,11 +206,11 @@ Our community is the ❤️ of the project. To chat with other community members
 
 ## 📝 License
 
-BTCPay Server software, logo and designs are provided under [MIT License](https://github.com/btcpayserver/btcpayserver/blob/master/LICENSE).
+Blockchain Merchant software, logo and designs are provided under [MIT License](https://github.com/btcpayserver/btcpayserver/blob/master/LICENSE).
 
 ## 🙏 Supporters
 
-The BTCPay Server Project is proudly supported by these entities through the [BTCPay Server Foundation](https://foundation.btcpayserver.org/).
+The Blockchain Merchant Project is proudly supported by these entities through the [Blockchain Merchant Foundation](https://foundation.btcpayserver.org/).
 
 <table>
   <tbody>

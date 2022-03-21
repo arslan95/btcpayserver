@@ -57,7 +57,7 @@
         <div id="InternalSetup" class="pt-3 tab-pane fade @(Model.LightningNodeType == LightningNodeType.Internal ? "show active" : "")" role="tabpanel" aria-labelledby="LightningNodeType-@LightningNodeType.Internal">
             @if (Model.CanUseInternalNode)
             {
-                <p class="mb-4">Using the BTCPay Server internal node for this store requires no further configuration. Click the save button below to start accepting Bitcoin through the Lightning Network.</p>
+                <p class="mb-4">Using the Blockchain Merchant internal node for this store requires no further configuration. Click the save button below to start accepting Bitcoin through the Lightning Network.</p>
             }
             else
             {
@@ -74,7 +74,7 @@
                 <span asp-validation-for="ConnectionString" class="text-danger"></span>
             </div>
             <vc:ui-extension-point location="ln-payment-method-setup-custom" model="@Model"/>
-            <p class="mt-4 mb-2">BTCPay Server currently supports:</p>
+            <p class="mt-4 mb-2">Blockchain Merchant currently supports:</p>
             <div class="accordion" id="CustomNodeSupport">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="CustomNodeCLightningHeader">

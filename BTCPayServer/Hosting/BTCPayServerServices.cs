@@ -203,7 +203,7 @@ namespace BTCPayServer.Hosting
                                                               $"               eclair server: 'type=eclair;server=http://eclair.com:4570;password=eclairpassword;bitcoin-host=bitcoind:37393" +
                                                               Environment.NewLine +
                                                               $"Error: {error}" + Environment.NewLine +
-                                                              "This service will not be exposed through BTCPay Server");
+                                                              "This service will not be exposed through Blockchain Merchant");
                             }
                             else
                             {

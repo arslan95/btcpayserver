@@ -106,7 +106,7 @@ namespace BTCPayServer.Controllers
             MaintenanceViewModel vm = new MaintenanceViewModel();
             vm.CanUseSSH = _sshState.CanUseSSH;
             if (!vm.CanUseSSH)
-                TempData[WellKnownTempData.ErrorMessage] = "Maintenance feature requires access to SSH properly configured in BTCPay Server configuration.";
+                TempData[WellKnownTempData.ErrorMessage] = "Maintenance feature requires access to SSH properly configured in Blockchain Merchant configuration.";
             vm.DNSDomain = this.Request.Host.Host;
             if (IPAddress.TryParse(vm.DNSDomain, out var unused))
                 vm.DNSDomain = null;
@@ -121,7 +121,7 @@ namespace BTCPayServer.Controllers
 
             if (!vm.CanUseSSH)
             {
-                TempData[WellKnownTempData.ErrorMessage] = "Maintenance feature requires access to SSH properly configured in BTCPay Server configuration.";
+                TempData[WellKnownTempData.ErrorMessage] = "Maintenance feature requires access to SSH properly configured in Blockchain Merchant configuration.";
                 return View(vm);
             }
             if (!ModelState.IsValid)
@@ -825,7 +825,7 @@ namespace BTCPayServer.Controllers
                 return NotFound();
             return View("Confirm",
                 new ConfirmModel("Delete dynamic DNS service",
-                    $"Deleting the dynamic DNS service for <strong>{hostname}</strong> means your BTCPay Server will stop updating the associated DNS record periodically.", "Delete"));
+                    $"Deleting the dynamic DNS service for <strong>{hostname}</strong> means your Blockchain Merchant will stop updating the associated DNS record periodically.", "Delete"));
         }
 
         [HttpPost("server/services/dynamic-dns/{hostname}/delete")]
@@ -961,7 +961,7 @@ namespace BTCPayServer.Controllers
         [HttpGet("server/services/ssh/disable")]
         public IActionResult SSHServiceDisable()
         {
-            return View("Confirm", new ConfirmModel("Disable modification of SSH settings", "This action is permanent and will remove the ability to change the SSH settings via the BTCPay Server user interface.", "Disable"));
+            return View("Confirm", new ConfirmModel("Disable modification of SSH settings", "This action is permanent and will remove the ability to change the SSH settings via the Blockchain Merchant user interface.", "Disable"));
         }
 
         [HttpPost("server/services/ssh/disable")]
@@ -970,7 +970,7 @@ namespace BTCPayServer.Controllers
             var policies = await _SettingsRepository.GetSettingAsync<PoliciesSettings>() ?? new PoliciesSettings();
             policies.DisableSSHService = true;
             await _SettingsRepository.UpdateSetting(policies);
-            TempData[WellKnownTempData.SuccessMessage] = "Changes to the SSH settings are now permanently disabled in the BTCPay Server user interface";
+            TempData[WellKnownTempData.SuccessMessage] = "Changes to the SSH settings are now permanently disabled in the Blockchain Merchant user interface";
             return RedirectToAction(nameof(Services));
         }
 
