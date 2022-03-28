@@ -11,7 +11,11 @@
         <svg xmlns="http://www.w3.org/2000/svg" role="img" alt="Blockchain Merchant" class="logo"><use href="@logoSrc#small" class="logo-small" /><use href="@logoSrc#large" class="logo-large" /></svg>
         @if (_env.NetworkType != NBitcoin.ChainName.Mainnet)
         {
-            <span class="font-weight-bold me-1"><strong>BCM</strong></span><span class="badge bg-warning ms-1 ms-sm-0" style="font-size:10px;">@_env.NetworkType.ToString()</span>
+            <span class="font-weight-bold me-1 d-none d-md-inline"><strong>Blockchain Merchant</strong></span><span class="badge bg-warning ms-1 ms-sm-0" style="font-size:10px;">@_env.NetworkType.ToString()</span>
+        }
+        @if (_env.NetworkType == NBitcoin.ChainName.Mainnet)
+        {
+            <span class="font-weight-bold me-1 d-sm-none"><strong>Blockchain Merchant</strong></span>
         }
     }
 
@@ -27,11 +31,11 @@
 }
 else if (Model.CurrentStoreIsOwner)
 {
-    <a asp-controller="UIStores" asp-action="Dashboard" asp-route-storeId="@Model.CurrentStoreId" class="navbar-brand py-2 js-scroll-trigger">@{await LogoContent();}</a>
+    <a asp-controller="UIStores" asp-action="Dashboard" asp-route-storeId="@Model.CurrentStoreId" class="navbar-brand py-2 js-scroll-trigger mx-1">@{await LogoContent();}</a>
 }
 else
 {
-    <a asp-controller="UIInvoice" asp-action="ListInvoices" asp-route-storeId="@Model.CurrentStoreId" class="navbar-brand py-2 js-scroll-trigger">@{await LogoContent();}</a>
+    <a asp-controller="UIInvoice" asp-action="ListInvoices" asp-route-storeId="@Model.CurrentStoreId" class="navbar-brand py-2 js-scroll-trigger mx-1">@{await LogoContent();}</a>
 }
 
 <div id="StoreSelector">
