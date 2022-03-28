@@ -8098,8 +8098,8 @@ a:hover {
 
 .action-button {
     color: #fff;
-    background-color: #51b13e;
-    border-color: #51b13e;
+    background-color: #00b6f5;
+    border-color: #00b6f5;
     padding: 12px;
     word-break: normal;
     font-size: 13px;
@@ -8114,21 +8114,21 @@ a:hover {
 
     .action-button:hover {
         color: #fff;
-        background-color: #418e32;
-        border-color: #418e32;
+        background-color: #0385b3;
+        border-color: #0385b3;
     }
 
     .action-button:focus, .action-button.focus {
         color: #fff;
-        background-color: #418e32;
-        border-color: #418e32;
+        background-color: #0385b3;
+        border-color: #0385b3;
     }
 
     .action-button:active, .action-button.active,
     .open > .action-button.dropdown-toggle {
         color: #fff;
-        background-color: #418e32;
-        border-color: #418e32;
+        background-color: #0385b3;
+        border-color: #0385b3;
         background-image: none;
     }
 
@@ -8137,8 +8137,8 @@ a:hover {
         .open > .action-button.dropdown-toggle:focus,
         .open > .action-button.dropdown-toggle.focus {
             color: #fff;
-            background-color: #418e32;
-            border-color: #418e32;
+            background-color: #0385b3;
+            border-color: #0385b3;
         }
 
     .action-button.disabled:focus, .action-button.disabled.focus, .action-button:disabled:focus, .action-button:disabled.focus {
@@ -8152,7 +8152,7 @@ a:hover {
     }
 
     .action-button:hover {
-        background-color: #418e32;
+        background-color: #0385b3;
         border-color: rgba(28, 100, 222, 0);
         opacity: .95;
     }
@@ -8278,7 +8278,7 @@ strong {
 /* eof */
 
 .top-header .timer-row {
-    background: #51b13e;
+    background: #00b6f5;
     color: #fff;
     display: flex;
     align-items: center;
@@ -8503,7 +8503,7 @@ strong {
         background: #f5f5f5;
         font-weight: 400;
         transition: all .2s ease;
-        border-bottom: #51b13e 3px solid
+        border-bottom: #00b6f5 3px solid
     }
 
 
@@ -8748,7 +8748,7 @@ strong {
     transform: rotateZ(45deg);
     margin-left: -5px;
     top: -5px;
-    background: #51b13e;
+    background: #00b6f5;
     transform-style: preserve-3d;
     backface-visibility: hidden;
 }
@@ -9228,7 +9228,7 @@ strong {
 }
 
 .status-icon--error .status-icon__wrapper__outline {
-    border-color: #51b13e;
+    border-color: #00b6f5;
 }
 
 .status-icon--error .status-icon__wrapper__icon {
@@ -9255,7 +9255,7 @@ strong {
     border-radius: 50%;
     height: 154px;
     width: 154px;
-    border: 5px solid #51b13e;
+    border: 5px solid #00b6f5;
 }
 
 .status-icon__wrapper__icon {
@@ -9351,7 +9351,7 @@ strong {
 
     .btnGroupLnd button {
         display: table-cell;
-        border: solid 1px #51b13e;
+        border: solid 1px #00b6f5;
         background-color: #fff;
         padding: 6px 9px;
         margin: 0px;
@@ -9368,14 +9368,14 @@ strong {
         }
 
         .btnGroupLnd button.active {
-            background-color: #51b13e;
-            border-color: #51b13e;
+            background-color: #00b6f5;
+            border-color: #00b6f5;
             color: #fff;
         }
 
             .btnGroupLnd button.active:hover {
-                background-color: #418e32;
-                border-color: #418e32;
+                background-color: #0385b3;
+                border-color: #0385b3;
                 color: #fff;
             }
 
@@ -11342,7 +11342,7 @@ low-fee-timeline {
     transform: rotateZ(45deg);
     margin-left: -5px;
     top: -5px;
-    background: #51b13e;
+    background: #00b6f5;
     transform-style: preserve-3d;
     backface-visibility: hidden;
     margin-bottom: -10px;
@@ -11454,11 +11454,11 @@ low-fee-timeline {
 
 
 .btn-link {
-    color: #51b13e;
+    color: #00b6f5;
 }
 
     .btn-link:hover {
-        color: #418e32;
+        color: #0385b3;
     }
 
 .powered__by__btcpayserver {
@@ -11469,9 +11469,9 @@ low-fee-timeline {
 }
 
     .powered__by__btcpayserver a {
-        color: #51b13e;
+        color: #00b6f5;
     }
 
         .powered__by__btcpayserver a:hover {
-            color: #418e32;
+            color: #0385b3;
         }
