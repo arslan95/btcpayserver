@@ -101,7 +101,7 @@ namespace BTCPayServer.Controllers
             if (bumpableUTXOs.Length == 0)
             {
                 TempData[WellKnownTempData.ErrorMessage] = "There isn't any UTXO available to bump fee";
-                return Redirect(returnUrl);
+                return LocalRedirect(returnUrl);
             }
             Money bumpFee = Money.Zero;
             foreach (var txid in bumpableUTXOs.Select(u => u.TransactionHash).ToHashSet())
@@ -120,26 +120,34 @@ namespace BTCPayServer.Controllers
             builder.SendEstimatedFees(targetFeeRate);
             builder.SendFees(bumpFee);
             builder.SendAll(returnAddress);
-            var psbt = builder.BuildPSBT(false);
-            psbt = (await explorer.UpdatePSBTAsync(new UpdatePSBTRequest()
-            {
-                PSBT = psbt,
-                DerivationScheme = derivationScheme
-            })).PSBT;
-            return View("PostRedirect", new PostRedirectViewModel
-            {
-                AspController = "UIWallets",
-                AspAction = nameof(UIWalletsController.WalletSign),
-                RouteParameters = {
-                    { "walletId", walletId.ToString() },
-                    { "returnUrl", returnUrl }
-                },
-                FormParameters =
-                            {
-                                { "walletId", walletId.ToString() },
-                                { "psbt", psbt.ToHex() }
-                            }
-            });
+            
+            try {
+                var psbt = builder.BuildPSBT(false);
+                psbt = (await explorer.UpdatePSBTAsync(new UpdatePSBTRequest()
+                {
+                    PSBT = psbt,
+                    DerivationScheme = derivationScheme
+                })).PSBT;
+
+                return View("PostRedirect", new PostRedirectViewModel
+                {
+                    AspController = "UIWallets",
+                    AspAction = nameof(UIWalletsController.WalletSign),
+                    RouteParameters = {
+                        { "walletId", walletId.ToString() },
+                        { "returnUrl", returnUrl }
+                    },
+                    FormParameters =
+                                {
+                                    { "walletId", walletId.ToString() },
+                                    { "psbt", psbt.ToHex() }
+                                }
+                });
+            } catch (Exception ex) {
+                TempData[WellKnownTempData.ErrorMessage] = ex.Message;
+
+                return LocalRedirect(returnUrl);
+            }
         }
 
         [HttpPost("{walletId}/sign")]
@@ -518,7 +526,7 @@ namespace BTCPayServer.Controllers
                         var returnUrl = this.HttpContext.Request.Query["returnUrl"].FirstOrDefault();
                         if (returnUrl is not null)
                         {
-                            return Redirect(returnUrl);
+                            return LocalRedirect(returnUrl);
                         }
                         return RedirectToAction(nameof(WalletTransactions), new { walletId = walletId.ToString() });
                     }

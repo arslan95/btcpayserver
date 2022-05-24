@@ -1,6 +1,7 @@
 @model ListTransactionsViewModel
 @{
     var walletId = Context.GetRouteValue("walletId").ToString();
+    var labelFilter = Context.Request.Query["labelFilter"].ToString();
     Layout = "../Shared/_NavLayout.cshtml";
     ViewData.SetActivePage(WalletsNavPages.Transactions, $"{Model.CryptoCode} Transactions", walletId);
 }
@@ -16,22 +17,22 @@
                 max-width: 200px;
             }
         }
-
+        /* pull actions area, so that it is besides the search form */
+        @@media (min-width: 1200px) {
+            #Actions {
+                margin-top: -4rem;
+            }
+		}
         .unconf > * {
             opacity: 0.5;
         }
 
         .switchTimeFormat {
             display: block;
-            max-width: 150px;
-            width: 150px;
+            max-width: 125px;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-        }
-
-        .badge-container:not(:last-child) {
-            margin-bottom: 4px;
         }
 
         .badge-container {
@@ -52,11 +53,15 @@
             background-color: transparent;
             border: 0;
         }
-
-        .transaction-details-icon {
-            position: relative;
-            padding-left: 12px;
-            left: -8px;
+        
+        .label-tooltip .tooltip-inner {
+            max-width: 15rem;
+            text-align: left;
+        }
+        
+        .label-tooltip ul {
+            margin: 0;
+            padding-left: var(--btcpay-space-m);
         }
     </style>
 }
@@ -78,9 +83,9 @@
 
 @if (Model.Transactions.Any())
 {
-    <div class="d-flex align-items-center gap-3 mb-2">
-        @if (Model.Labels.Any())
-        {
+    @if (Model.Labels.Any())
+    {
+        <div class="col-xl-7 col-xxl-8 mb-4">
             <div class="input-group">
                 <span class="input-group-text">Filter</span>
                 <div class="form-control d-flex flex-wrap gap-2 align-items-center">
@@ -89,13 +94,15 @@
                         <a asp-route-labelFilter="@label.Text" class="badge position-relative text-white flex-grow-0" style="background-color:@label.Color;color:@label.TextColor !important;">@label.Text</a>
                     }
                 </div>
-                @if (Context.Request.Query.ContainsKey("labelFilter"))
+                @if (labelFilter != null)
                 {
                     <a asp-route-labelFilter="" class="btn btn-secondary d-flex align-items-center">Clear filter</a>
                 }
             </div>
-        }
-        <div class="dropdown ms-auto">
+        </div>
+    }
+    <div class="d-inline-flex align-items-center pb-2 float-xl-end mb-2 gap-3" id="Actions">
+        <div class="dropdown order-xl-1 ms-auto">
             <button class="btn btn-secondary dropdown-toggle" type="button" id="ActionsDropdownToggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Actions
             </button>
@@ -105,7 +112,20 @@
                 </form> 
             </div>
         </div>
+        <div class="dropdown d-inline-flex align-items-center gap-3">
+            <button class="btn btn-secondary dropdown-toggle order-xl-1" type="button" id="ExportDropdownToggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Export
+            </button>
+            <div class="dropdown-menu" aria-labelledby="ExportDropdownToggle">
+                <a asp-action="Export" asp-route-walletId="@walletId" asp-route-format="csv" asp-route-labelFilter="@labelFilter" class="dropdown-item export-link" target="_blank" id="ExportCSV">CSV</a>
+                <a asp-action="Export" asp-route-walletId="@walletId" asp-route-format="json" asp-route-labelFilter="@labelFilter" class="dropdown-item export-link" target="_blank" id="ExportJSON">JSON</a>
+            </div>
+            <a href="https://docs.btcpayserver.org/Accounting/" target="_blank" rel="noreferrer noopener">
+                <span class="fa fa-question-circle-o text-secondary" title="More information..."></span>
+            </a>
+        </div>
     </div>
+    <div style="clear:both"></div>
     
     <div class="row">
         <div class="col table-responsive-md">
@@ -115,7 +135,7 @@
                     <th style="width:2rem;" class="only-for-js">
                         <input id="selectAllCheckbox" type="checkbox" class="form-check-input"/>
                     </th>
-                    <th style="min-width: 90px;" class="col-md-auto">
+                    <th style="max-width:125px;">
                         Date
                         <a id="switchTimeFormat" href="#">
                             <span class="fa fa-clock-o" title="Switch date format"></span>
@@ -124,7 +144,7 @@
                     <th class="text-start">Label</th>
                     <th>Transaction Id</th>
                     <th class="text-end">Amount</th>
-                    <th class="text-end"></th>
+                    <th class="text-end" style="min-width:60px"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -140,38 +160,45 @@
                             </span>
                         </td>
                         <td class="text-start">
-                            @foreach (var label in transaction.Labels)
+                            @if (transaction.Labels.Any())
                             {
-                                <div class="badge-container">
-                                    <div
-                                        class="badge transactionLabel position-relative text-white d-block"
-                                        style="background-color:@label.Color;padding-right: 16px; z-index: 1;"
-                                        data-bs-toggle="tooltip"
-                                        title="@label.Tooltip">
-                                        <a asp-route-labelFilter="@label.Text" style="color:@label.TextColor !important;">@label.Text</a>
-
-                                        <form
-                                            asp-route-walletId="@Context.GetRouteValue("walletId")"
-                                            asp-action="ModifyTransaction"
-                                            method="post"
-                                            class="removeTransactionLabelForm">
-                                            <input type="hidden" name="transactionId" value="@transaction.Id"/>
-                                            <button
-                                                name="removelabel"
-                                                style="color: @label.Color; filter: brightness(0.5);"
-                                                type="submit"
-                                                value="@label.Text">
-                                                <span class="fa fa-close"></span>
-                                            </button>
-                                        </form>
-                                    </div>
-                                    @if (!string.IsNullOrEmpty(label.Link))
+                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                    @foreach (var label in transaction.Labels)
                                     {
-                                        <a href="@label.Link" target="_blank" class="badge transaction-details-icon" style="background-color: @label.Color; filter: brightness(1.1);" rel="noreferrer noopener">
-                                            <span class="fa fa-info-circle" title="Transaction details" style="color: @label.Color; filter: brightness(0.5);">
-                                                <span class="visually-hidden">Transaction details</span>
-                                            </span>
-                                        </a>
+                                        <div class="badge-container rounded-2" style="background-color:@label.Color;">
+                                            <div
+                                                class="badge transactionLabel position-relative d-block"
+                                                style="background-color:@label.Color;padding-right: 16px; z-index: 1;"
+                                                data-bs-html="true"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-custom-class="label-tooltip"
+                                                title="@label.Tooltip">
+                                                <a asp-route-labelFilter="@label.Text" style="color:@label.TextColor !important;">@label.Text</a>
+
+                                                <form
+                                                    asp-route-walletId="@Context.GetRouteValue("walletId")"
+                                                    asp-action="ModifyTransaction"
+                                                    method="post"
+                                                    class="removeTransactionLabelForm">
+                                                    <input type="hidden" name="transactionId" value="@transaction.Id"/>
+                                                    <button
+                                                        name="removelabel"
+                                                        style="color: @label.Color; filter: brightness(0.5);"
+                                                        type="submit"
+                                                        value="@label.Text">
+                                                        <span class="fa fa-close"></span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(label.Link))
+                                            {
+                                                <a href="@label.Link" target="_blank" class="badge transaction-details-icon" style="background-color: @label.Color; filter: brightness(1.1);" rel="noreferrer noopener">
+                                                    <span class="fa fa-info-circle" title="Transaction details" style="color: @label.Color; filter: brightness(0.5);">
+                                                        <span class="visually-hidden">Transaction details</span>
+                                                    </span>
+                                                </a>
+                                            }
+                                        </div>
                                     }
                                 </div>
                             }
@@ -190,10 +217,10 @@
                             <td class="text-end text-danger">@transaction.Balance</td>
                         }
                         <td class="text-end">
-                            <div class="dropstart d-inline-block">
+                            <div class="dropstart d-inline-block me-2">
                                 <span class="fa fa-tags cursor-pointer" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></span>
                                 <div class="dropdown-menu">
-                                    <form asp-action="ModifyTransaction" method="post"
+                                    <form asp-action="ModifyTransaction" method="post" style="width:260px;"
                                           asp-route-walletId="@Context.GetRouteValue("walletId")">
                                         <input type="hidden" name="transactionId" value="@transaction.Id"/>
                                         <div class="input-group input-group-sm p-2">
@@ -203,16 +230,16 @@
                                         @if (Model.Labels.Count > 0)
                                         {
                                             <div class="dropdown-divider"></div>
-                                            <div class="px-2">
+                                            <div class="py-2 px-3 d-flex flex-wrap gap-2">
                                                 @foreach (var label in Model.Labels)
                                                 {
                                                     @if (transaction.Labels.Contains(label))
                                                     {
-                                                        <button name="removelabel" class="bg-transparent border-0 p-0" type="submit" value="@label.Text"><span class="badge" style="display:block;background-color:@label.Color;color:white;text-align:left;"><span class="fa fa-check"></span> @label.Text</span></button>
+                                                        <button name="removelabel" class="bg-transparent border-0 p-0" type="submit" value="@label.Text"><span class="badge" style="background-color:@label.Color;color:@label.TextColor"><span class="fa fa-check"></span> @label.Text</span></button>
                                                     }
                                                     else
                                                     {
-                                                        <button name="addlabelclick" class="bg-transparent border-0 p-0" type="submit" value="@label.Text"><span class="badge" style="display:block;background-color:@label.Color;color:white;text-align:left;">@label.Text</span></button>
+                                                        <button name="addlabelclick" class="bg-transparent border-0 p-0" type="submit" value="@label.Text"><span class="badge" style="background-color:@label.Color;color:@label.TextColor">@label.Text</span></button>
                                                     }
                                                 }
                                             </div>
@@ -230,14 +257,14 @@
                                     <span class="fa fa-commenting cursor-pointer" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></span>
                                 }
                                 <div class="dropdown-menu">
-                                    <form asp-action="ModifyTransaction" method="post"
+                                    <form asp-action="ModifyTransaction" method="post" style="width:260px;"
                                           asp-route-walletId="@Context.GetRouteValue("walletId")">
                                         <input type="hidden" name="transactionId" value="@transaction.Id"/>
                                         <div class="input-group p-2">
                                             <textarea name="addcomment" maxlength="200" rows="2" cols="20" class="form-control form-control-sm p-1">@transaction.Comment</textarea>
                                         </div>
                                         <div class="p-2">
-                                            <button type="submit" class="btn btn-primary btn-sm">Save comment</button>
+                                            <button type="submit" class="btn btn-primary btn-sm w-100">Save comment</button>
                                         </div>
                                     </form>
                                 </div>

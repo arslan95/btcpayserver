@@ -8,16 +8,15 @@
 @using BTCPayServer.Abstractions.Extensions
 @using BTCPayServer.Abstractions.Contracts
 @using BTCPayServer.Client
+@using BTCPayServer.Services
 @inject BTCPayServer.Services.BTCPayServerEnvironment Env
 @inject SignInManager<ApplicationUser> SignInManager
-@inject ISettingsRepository SettingsRepository
+@inject PoliciesSettings PoliciesSettings
+@inject ThemeSettings Theme
 
 @model BTCPayServer.Components.MainNav.MainNavViewModel
 @addTagHelper *, BundlerMinifier.TagHelpers
 
-@{
-    var theme = await SettingsRepository.GetTheme();
-}
 
 <nav id="mainNav" class="d-flex flex-column justify-content-between">
     <div class="accordion px-3 px-lg-4">
@@ -35,7 +34,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a asp-area="" asp-controller="UIStores" asp-action="GeneralSettings" asp-route-storeId="@Model.Store.Id" class="nav-link js-scroll-trigger @ViewData.IsActivePage(StoreNavPages.Rates) @ViewData.IsActivePage(StoreNavPages.CheckoutAppearance) @ViewData.IsActivePage(StoreNavPages.General) @ViewData.IsActivePage(StoreNavPages.Tokens) @ViewData.IsActivePage(StoreNavPages.Users) @ViewData.IsActivePage(StoreNavPages.Integrations) @ViewData.IsActivePage(StoreNavPages.Webhooks)" id="StoreNav-StoreSettings">
+                                <a asp-area="" asp-controller="UIStores" asp-action="GeneralSettings" asp-route-storeId="@Model.Store.Id" class="nav-link js-scroll-trigger @ViewData.IsActivePage(StoreNavPages.Rates) @ViewData.IsActivePage(StoreNavPages.CheckoutAppearance) @ViewData.IsActivePage(StoreNavPages.General) @ViewData.IsActivePage(StoreNavPages.Tokens) @ViewData.IsActivePage(StoreNavPages.Users) @ViewData.IsActivePage(StoreNavPages.Plugins) @ViewData.IsActivePage(StoreNavPages.Webhooks)" id="StoreNav-StoreSettings">
                                     <vc:icon symbol="settings"/>
                                     <span>Settings</span>
                                 </a>
@@ -197,23 +196,32 @@
                 </div>
             </div>
             <script>
-                const navCollapsed = window.localStorage.getItem('btcpay-nav-collapsed')
-                const collapsed = navCollapsed ? JSON.parse(navCollapsed) : []
-                collapsed.forEach(id => {
-                    const el = document.getElementById(id)
-                    const btn = el && el.previousElementSibling.querySelector(`[aria-controls="${id}"]`)
-                    if (el && btn) {
-                        el.classList.remove('show')
-                        btn.classList.add('collapsed')
-                        btn.setAttribute('aria-expanded', 'false')
+                (() => {
+                    // apply collapse settings
+                    const navCollapsed = window.localStorage.getItem('btcpay-nav-collapsed')
+                    const collapsed = navCollapsed ? JSON.parse(navCollapsed) : []
+                    collapsed.forEach(id => {
+                        const el = document.getElementById(id)
+                        const btn = el && el.previousElementSibling.querySelector(`[aria-controls="${id}"]`)
+                        if (el && btn) {
+                            el.classList.remove('show')
+                            btn.classList.add('collapsed')
+                            btn.setAttribute('aria-expanded', 'false')
+                        }
+                    })
+                    // hide empty plugins drawer
+                    const pluginsItem = document.getElementById('Nav-Plugins').closest('.accordion-item')
+                    const pluginsContent = pluginsItem.querySelector('.navbar-nav').innerHTML.trim()
+                    if (pluginsContent === '') {
+                        pluginsItem.setAttribute('hidden', true)
                     }
-                })
+                })()
             </script>
         }
         else if (Env.IsSecure)
         {
             <ul class="navbar-nav">
-                @if (!(await SettingsRepository.GetPolicies()).LockSubscription)
+                @if (!PoliciesSettings.LockSubscription)
                 {
                     <li class="nav-item">
                         <a asp-area="" asp-controller="UIAccount" asp-action="Register" class="nav-link js-scroll-trigger" id="Nav-Register">Register</a>
@@ -247,7 +255,7 @@
                             <div class="text-secondary">Administrator</div>
                         }
                     </li>
-                    @if (!theme.CustomTheme)
+                    @if (!Theme.CustomTheme)
                     {
                         <li class="border-top py-1 px-3">
                             <vc:theme-switch css-class="nav-link"/>

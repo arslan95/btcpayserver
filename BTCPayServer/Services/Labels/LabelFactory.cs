@@ -1,23 +1,31 @@
+#nullable enable
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using Amazon.Util.Internal.PlatformServices;
-using BTCPayServer.Client.Models;
-using BTCPayServer.Data;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Newtonsoft.Json.Linq;
+using BTCPayServer.Data;
+using BTCPayServer.Client.Models;
+using BTCPayServer.Abstractions.Extensions;
 
 namespace BTCPayServer.Services.Labels
 {
     public class LabelFactory
     {
         private readonly LinkGenerator _linkGenerator;
+        private readonly  WalletRepository _walletRepository;
 
-        public LabelFactory(LinkGenerator linkGenerator)
+        public LabelFactory(
+            LinkGenerator linkGenerator,
+            WalletRepository walletRepository
+        )
         {
             _linkGenerator = linkGenerator;
+            _walletRepository = walletRepository;
         }
 
         public IEnumerable<ColoredLabel> ColorizeTransactionLabels(WalletBlobInfo walletBlobInfo, WalletTransactionInfo transactionInfo,
@@ -39,7 +47,7 @@ namespace BTCPayServer.Services.Labels
         }
 
         const string DefaultColor = "#000";
-        private ColoredLabel CreateLabel(LabelData uncoloredLabel, string color, HttpRequest request)
+        private ColoredLabel CreateLabel(LabelData uncoloredLabel, string? color, HttpRequest request)
         {
             ArgumentNullException.ThrowIfNull(uncoloredLabel);
             color ??= DefaultColor;
@@ -50,6 +58,15 @@ namespace BTCPayServer.Services.Labels
                 Color = color,
                 TextColor = TextColor(color)
             };
+
+            string PayoutLabelText(KeyValuePair<string, List<string>> pair)
+            {
+                if (pair.Value.Count == 1)
+                    return $"Paid a payout of a pull payment ({pair.Key})";
+                else
+                    return $"Paid payouts of a pull payment ({pair.Key})";
+            }
+
             if (uncoloredLabel is ReferenceLabel refLabel)
             {
                 var refInLabel = string.IsNullOrEmpty(refLabel.Reference) ? string.Empty : $"({refLabel.Reference})";
@@ -83,16 +100,81 @@ namespace BTCPayServer.Services.Labels
             }
             else if (uncoloredLabel is PayoutLabel payoutLabel)
             {
-                coloredLabel.Tooltip = $"Paid a payout of a pull payment ({payoutLabel.PullPaymentId})";
-                coloredLabel.Link = string.IsNullOrEmpty(payoutLabel.PullPaymentId) || string.IsNullOrEmpty(payoutLabel.WalletId)
+                coloredLabel.Tooltip = payoutLabel.PullPaymentPayouts.Count > 1
+                        ? $"<ul>{string.Join(string.Empty, payoutLabel.PullPaymentPayouts.Select(pair => $"<li>{PayoutLabelText(pair)}</li>"))}</ul>"
+                        : payoutLabel.PullPaymentPayouts.Select(PayoutLabelText).ToString();
+
+                coloredLabel.Link = string.IsNullOrEmpty(payoutLabel.WalletId)
                     ? null
-                    : _linkGenerator.PayoutLink(payoutLabel.WalletId,
-                        payoutLabel.PullPaymentId, request.Scheme, request.Host,
+                    : _linkGenerator.PayoutLink(payoutLabel.WalletId, null, PayoutState.Completed, request.Scheme, request.Host,
                         request.PathBase);
+
             }
             return coloredLabel;
         }
-        
+
+        // Borrowed from https://github.com/ManageIQ/guides/blob/master/labels.md
+        readonly string[] LabelColorScheme =
+        {
+            "#fbca04",
+            "#0e8a16",
+            "#ff7619",
+            "#84b6eb",
+            "#5319e7",
+            "#cdcdcd",
+            "#cc317c",
+        };
+
+        readonly int MaxLabelSize = 20;
+
+        async public Task<RawLabel> BuildLabel(
+            WalletBlobInfo walletBlobInfo,
+            HttpRequest request,
+            WalletTransactionInfo walletTransactionInfo,
+            WalletId walletId,
+            string transactionId,
+            string label
+        )
+        {
+            label = label.Trim().TrimStart('{').ToLowerInvariant().Replace(',', ' ').Truncate(MaxLabelSize);
+            var labels = GetWalletColoredLabels(walletBlobInfo, request);
+
+            if (!labels.Any(l => l.Text.Equals(label, StringComparison.OrdinalIgnoreCase)))
+            {
+                var chosenColor = ChooseBackgroundColor(walletBlobInfo, request);
+                walletBlobInfo.LabelColors.Add(label, chosenColor);
+                await _walletRepository.SetWalletInfo(walletId, walletBlobInfo);
+            }
+
+            return new RawLabel(label);
+        }
+
+        private string ChooseBackgroundColor(
+            WalletBlobInfo walletBlobInfo,
+            HttpRequest request
+        )
+        {
+            var labels = GetWalletColoredLabels(walletBlobInfo, request);
+
+            List<string> allColors = new List<string>();
+            allColors.AddRange(LabelColorScheme);
+            allColors.AddRange(labels.Select(l => l.Color));
+            var chosenColor =
+                allColors
+                .GroupBy(k => k)
+                .OrderBy(k => k.Count())
+                .ThenBy(k =>
+                {
+                    var indexInColorScheme = Array.IndexOf(LabelColorScheme, k.Key);
+
+                    // Ensures that any label color which may not be in our label color scheme is given the least priority
+                    return indexInColorScheme == -1 ? double.PositiveInfinity : indexInColorScheme;
+                })
+                .First().Key;
+
+            return chosenColor;
+        }
+
         private string TextColor(string bgColor)
         {
             int nThreshold = 105;

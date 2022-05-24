@@ -43,8 +43,10 @@ namespace BTCPayServer.Controllers
         [HttpGet("/apps/{appId}")]
         public async Task<IActionResult> RedirectToApp(string appId)
         {
-
-            switch ((await _AppService.GetApp(appId, null)).AppType)
+            var app = await _AppService.GetApp(appId, null);
+            if (app is null)
+                return NotFound();
+            switch (app.AppType)
             {
                 case nameof(AppType.Crowdfund):
                     return RedirectToAction("ViewCrowdfund", new { appId });
@@ -219,7 +221,7 @@ namespace BTCPayServer.Controllers
                     Currency = settings.Currency,
                     Price = price,
                     BuyerEmail = email,
-                    OrderId = orderId,
+                    OrderId = orderId ?? AppService.GetPosOrderId(appId),
                     NotificationURL =
                             string.IsNullOrEmpty(notificationUrl) ? settings.NotificationUrl : notificationUrl,
                     RedirectURL = !string.IsNullOrEmpty(redirectUrl) ? redirectUrl

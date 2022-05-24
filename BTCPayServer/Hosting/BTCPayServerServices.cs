@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using BTCPayServer.Abstractions.Contracts;
+using BTCPayServer.Abstractions.Custodians;
 using BTCPayServer.Abstractions.Extensions;
 using BTCPayServer.Abstractions.Models;
 using BTCPayServer.Abstractions.Services;
@@ -21,12 +22,14 @@ using BTCPayServer.Payments;
 using BTCPayServer.Payments.Bitcoin;
 using BTCPayServer.Payments.Lightning;
 using BTCPayServer.Payments.PayJoin;
+using BTCPayServer.PayoutProcessors;
 using BTCPayServer.Plugins;
 using BTCPayServer.Security;
 using BTCPayServer.Security.Bitpay;
 using BTCPayServer.Security.Greenfield;
 using BTCPayServer.Services;
 using BTCPayServer.Services.Apps;
+using BTCPayServer.Services.Custodian.Client;
 using BTCPayServer.Services.Fees;
 using BTCPayServer.Services.Invoices;
 using BTCPayServer.Services.Labels;
@@ -99,6 +102,7 @@ namespace BTCPayServer.Hosting
             services.TryAddSingleton<LabelFactory>();
             services.TryAddSingleton<TorServices>();
             services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<TorServices>());
+            services.AddSingleton<ISwaggerProvider, DefaultSwaggerProvider>();
             services.TryAddSingleton<SocketFactory>();
             services.TryAddSingleton<LightningClientFactoryService>();
             services.TryAddSingleton<InvoicePaymentNotification>();
@@ -106,7 +110,10 @@ namespace BTCPayServer.Hosting
                 o.GetRequiredService<IOptions<BTCPayServerOptions>>().Value);
             // Don't move this StartupTask, we depend on it being right here
             services.AddStartupTask<MigrationStartupTask>();
-            // 
+            //
+            AddSettingsAccessor<PoliciesSettings>(services);
+            AddSettingsAccessor<ThemeSettings>(services);
+            //
             services.AddStartupTask<BlockExplorerLinkStartupTask>();
             services.TryAddSingleton<InvoiceRepository>();
             services.AddSingleton<PaymentService>();
@@ -116,6 +123,11 @@ namespace BTCPayServer.Hosting
             services.TryAddSingleton<EventAggregator>();
             services.TryAddSingleton<PaymentRequestService>();
             services.TryAddSingleton<UserService>();
+            services.AddSingleton<CustodianAccountRepository>();
+            
+
+            services.TryAddSingleton<WalletHistogramService>();
+            services.TryAddSingleton<CustodianAccountRepository>();
             services.AddSingleton<ApplicationDbContextFactory>();
             services.AddOptions<BTCPayServerOptions>().Configure(
                 (options) =>
@@ -175,6 +187,7 @@ namespace BTCPayServer.Hosting
                                     btcPayNetwork.NBXplorerNetwork.DefaultSettings.DefaultCookieFile)
                             };
                         options.NBXplorerConnectionSettings.Add(setting);
+                        options.ConnectionString = configuration.GetOrDefault<string>("explorer.postgres", null);
                     }
                 });
             services.AddOptions<LightningNetworkOptions>().Configure<BTCPayNetworkProvider>(
@@ -309,6 +322,8 @@ namespace BTCPayServer.Hosting
                 o.ModelMetadataDetailsProviders.Add(new SuppressChildValidationMetadataProvider(typeof(DerivationStrategyBase)));
             });
 
+            services.AddSingleton<Services.NBXplorerConnectionFactory>();
+            services.AddSingleton<IHostedService, Services.NBXplorerConnectionFactory>(o => o.GetRequiredService<Services.NBXplorerConnectionFactory>());
             services.AddSingleton<HostedServices.CheckConfigurationHostedService>();
             services.AddSingleton<IHostedService, HostedServices.CheckConfigurationHostedService>(o => o.GetRequiredService<CheckConfigurationHostedService>());
             services.AddSingleton<HostedServices.WebhookSender>();
@@ -317,7 +332,8 @@ namespace BTCPayServer.Hosting
                 .ConfigurePrimaryHttpMessageHandler<Socks5HttpClientHandler>();
 
 
-            services.AddSingleton<IPayoutHandler, BitcoinLikePayoutHandler>();
+            services.AddSingleton<BitcoinLikePayoutHandler>();
+            services.AddSingleton<IPayoutHandler>(provider => provider.GetRequiredService<BitcoinLikePayoutHandler>());
             services.AddSingleton<IPayoutHandler, LightningLikePayoutHandler>();
 
             services.AddHttpClient(LightningLikePayoutHandler.LightningLikePayoutHandlerOnionNamedClient)
@@ -397,6 +413,7 @@ namespace BTCPayServer.Hosting
             services.AddScoped<BTCPayServerClient, LocalBTCPayServerClient>();
             //also provide a factory that can impersonate user/store id
             services.AddSingleton<IBTCPayServerClientFactory, BTCPayServerClientFactory>();
+            services.AddPayoutProcesors();
 
             services.AddAPIKeyAuthentication();
             services.AddBtcPayServerAuthenticationSchemes();
@@ -461,6 +478,15 @@ namespace BTCPayServer.Hosting
                 services.AddSingleton<IHostedService, Cheater>(o => o.GetRequiredService<Cheater>());
             }
             return services;
+        }
+
+        private static void AddSettingsAccessor<T>(IServiceCollection services) where T : class, new()
+        {
+            services.TryAddSingleton<ISettingsAccessor<T>, SettingsAccessor<T>>();
+            services.AddSingleton<IHostedService>(provider => (SettingsAccessor<T>)provider.GetRequiredService<ISettingsAccessor<T>>());
+            services.AddSingleton<IStartupTask>(provider => (SettingsAccessor<T>)provider.GetRequiredService<ISettingsAccessor<T>>());
+            // Singletons shouldn't reference the settings directly, but ISettingsAccessor<T>, since singletons won't have refreshed values of the setting
+            services.AddTransient<T>(provider => provider.GetRequiredService<ISettingsAccessor<T>>().Settings);
         }
 
         public static void SkipModelValidation<T>(this IServiceCollection services)
