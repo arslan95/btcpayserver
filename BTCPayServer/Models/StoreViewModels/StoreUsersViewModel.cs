@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using BTCPayServer.Data;
 
 namespace BTCPayServer.Models.StoreViewModels
 {
@@ -20,6 +22,9 @@ namespace BTCPayServer.Models.StoreViewModels
         public string Email { get; set; }
         public string StoreId { get; set; }
         public string Role { get; set; }
+        public List<ApplicationUser> UserRoles { get; set; }
         public List<StoreUserViewModel> Users { get; set; }
+       
+
     }
 }

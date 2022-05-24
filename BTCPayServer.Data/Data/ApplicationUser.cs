@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BTCPayServer.Data
 {
     // Add profile data for application users by adding properties to the ApplicationUser class
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser : IdentityUser, IDisposable
     {
         public bool RequiresEmailConfirmation { get; set; }
         public List<StoredFile> StoredFiles { get; set; }
@@ -29,6 +29,11 @@ namespace BTCPayServer.Data
             builder.Entity<ApplicationUser>()
                 .HasMany<IdentityUserRole<string>>(user => user.UserRoles)
                 .WithOne().HasForeignKey(role => role.UserId);
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 }

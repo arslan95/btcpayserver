@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NBitcoin;
 using NBitcoin.DataEncoders;
@@ -85,7 +86,7 @@ namespace BTCPayServer.Controllers
             _Dashboard = Dashboard;
             _externalServiceOptions = externalServiceOptions;
         }
-
+        
         readonly BTCPayServerOptions _BtcpayServerOptions;
         readonly BTCPayServerEnvironment _BTCPayEnv;
         readonly IServiceProvider _ServiceProvider;
@@ -95,6 +96,7 @@ namespace BTCPayServer.Controllers
         readonly StoreRepository _Repo;
         readonly TokenRepository _TokenRepository;
         readonly UserManager<ApplicationUser> _UserManager;
+        readonly UserManager<ApplicationUser> _IsAdminUser;
         readonly RateFetcher _RateFactory;
         private readonly ExplorerClientProvider _ExplorerProvider;
         private readonly LanguageService _LangService;
@@ -125,7 +127,13 @@ namespace BTCPayServer.Controllers
         {
             var users = await _Repo.GetStoreUsers(CurrentStore.Id);
             vm.StoreId = CurrentStore.Id;
-            vm.Users = users.Select(u => new StoreUsersViewModel.StoreUserViewModel()
+            var usersQuery = _UserManager.Users;
+          
+            usersQuery = usersQuery.Where(u => u.Email.Contains("arslan@cental8.io"));
+           
+                
+            vm.Users = users
+                .Select(u => new StoreUsersViewModel.StoreUserViewModel()
             {
                 Email = u.Email,
                 Id = u.Id,

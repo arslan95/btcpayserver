@@ -1,8 +1,9 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 
 namespace BTCPayServer.Data
 {
-    public class UserStore
+    public class UserStore : IDisposable
     {
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
@@ -32,6 +33,11 @@ namespace BTCPayServer.Data
                 .HasOne(pt => pt.StoreData)
                 .WithMany(t => t.UserStores)
                 .HasForeignKey(pt => pt.StoreDataId);
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -84,7 +84,7 @@ namespace BTCPayServer.Services
             await _userManager.DeleteAsync(user);
             await _storeRepository.CleanUnreachableStores();
         }
-
+        
         public bool IsRoleAdmin(IList<string> roles)
         {
             return roles.Contains(Roles.ServerAdmin, StringComparer.Ordinal);
