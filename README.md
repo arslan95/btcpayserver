@@ -266,7 +266,12 @@ The Blockchain Merchant Project is proudly supported by these entities through t
          <span>Coincards</span>
        </a>
      </td>
-      <td align="center" valign="middle">
+     <td align="center" valign="middle">
+        <a href="https://ivpn.net/" target="_blank">
+          <img  src="BTCPayServer/wwwroot/img/ivpn.svg?sanitize=true" alt="IVPN" height=100>
+          <br/>
+          <span>IVPN</span>
+        </a>
       </td>
     </tr>
   </tbody>

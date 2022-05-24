@@ -148,16 +148,23 @@
             <h4 class="mt-3 mb-3">General Settings</h4>
             <div class="form-group col-md-8">
                 <label class="form-label" for="price">Price</label>
-                <input name="price" type="text" class="form-control" id="price"
+                <input name="price" type="text" class="form-control" id="price" inputmode="decimal"
                        v-model="srvModel.price" v-on:change="inputChanges"
                        v-validate="'decimal|min_value:0'" :class="{'is-invalid': errors.has('price') }">
                 <small class="text-danger">{{ errors.first('price') }}</small>
             </div>
             <div class="form-group col-md-4" v-if="!srvModel.appIdEndpoint">
-                <label class="form-label" for="currency">Currency</label>
-                <input name="currency" type="text" class="form-control" id="currency"
+                <label class="form-label" for="Currency">Currency</label>
+                <input asp-for="Currency" name="currency" currency-selection class="form-control"
                        v-model="srvModel.currency" v-on:change="inputChanges"
-                       :class="{'is-invalid': errors.has('currency') }">
+                       :class="{'is-invalid': errors.has('currency') }" />
+            </div>
+            <div class="form-group col-md-4" v-if="!srvModel.appIdEndpoint">
+                <label class="form-label" for="defaultPaymentMethod">Default Payment Method</label>
+                <select v-model="srvModel.defaultPaymentMethod" v-on:change="inputChanges" class="form-select" id="default-payment-method">
+                    <option value="" selected>Use the store’s default</option>
+                    <option  v-for="pm in srvModel.paymentMethods" v-bind:value="pm.value">{{pm.name}}</option>
+                </select>
             </div>
             <div class="form-group" v-if="!srvModel.appIdEndpoint">
                 <label class="form-label" for="description">Checkout Description</label>

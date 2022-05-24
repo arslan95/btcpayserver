@@ -72,14 +72,14 @@
                 <div class="col-12 col-sm-auto">
                     <div class="form-group">
                         <label asp-for="Add.Min" class="form-label"></label>
-                        <input asp-for="Add.Min" class="form-control" type="number" min="1" style="max-width:16ch;"/>
+                        <input asp-for="Add.Min" class="form-control" type="number" inputmode="numeric" min="1" style="max-width:16ch;"/>
                         <span asp-validation-for="Add.Min" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-12 col-sm-auto">
                     <div class="form-group">
                         <label asp-for="Add.Max" class="form-label"></label>
-                        <input asp-for="Add.Max" class="form-control" type="number" min="1" max="@int.MaxValue" style="max-width:16ch;"/>
+                        <input asp-for="Add.Max" class="form-control" type="number" inputmode="numeric" min="1" max="@int.MaxValue" style="max-width:16ch;"/>
                         <span asp-validation-for="Add.Max" class="text-danger"></span>
                     </div>
                 </div>
@@ -134,7 +134,7 @@
                                 }
                             </td>
                             <td class="text-end">
-                                <button type="submit" title="Remove" name="command" value="@($"remove:{index}")"
+                                <button type="submit" title="Remove" name="command" value="@($"remove:{Model.Items[index].Username}")"
                                         class="btn btn-link px-0 remove" data-bs-toggle="modal" data-bs-target="#ConfirmModal" data-description="The Lightning Address <strong>@address</strong> will be removed." data-confirm-input="REMOVE">
                                     Remove
                                 </button>

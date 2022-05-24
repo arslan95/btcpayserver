@@ -39,28 +39,25 @@ namespace BTCPayServer.Controllers
 {
     public class UIHomeController : Controller
     {
-        private readonly ISettingsRepository _settingsRepository;
+        private readonly ThemeSettings _theme;
         private readonly StoreRepository _storeRepository;
-        private readonly IFileProvider _fileProvider;
         private readonly BTCPayNetworkProvider _networkProvider;
         private IHttpClientFactory HttpClientFactory { get; }
         private SignInManager<ApplicationUser> SignInManager { get; }
         public LanguageService LanguageService { get; }
 
         public UIHomeController(IHttpClientFactory httpClientFactory,
-                              ISettingsRepository settingsRepository,
-                              IWebHostEnvironment webHostEnvironment,
+                              ThemeSettings theme,
                               LanguageService languageService,
                               StoreRepository storeRepository,
                               BTCPayNetworkProvider networkProvider,
                               SignInManager<ApplicationUser> signInManager)
         {
-            _settingsRepository = settingsRepository;
+            _theme = theme;
             HttpClientFactory = httpClientFactory;
             LanguageService = languageService;
             _networkProvider = networkProvider;
             _storeRepository = storeRepository;
-            _fileProvider = webHostEnvironment.WebRootFileProvider;
             SignInManager = signInManager;
         }
 
@@ -74,7 +71,7 @@ namespace BTCPayServer.Controllers
         [DomainMappingConstraint]
         public async Task<IActionResult> Index()
         {
-            if ((await _settingsRepository.GetTheme()).FirstRun)
+            if (_theme.FirstRun)
             {
                 return RedirectToAction(nameof(UIAccountController.Register), "UIAccount");
             }
@@ -127,19 +124,23 @@ namespace BTCPayServer.Controllers
 
         [Route("swagger/v1/swagger.json")]
         [Authorize(AuthenticationSchemes = AuthenticationSchemes.Cookie + "," + AuthenticationSchemes.Greenfield)]
-        public async Task<IActionResult> Swagger()
+        public async Task<IActionResult> Swagger([FromServices] IEnumerable<ISwaggerProvider> swaggerProviders)
         {
-            JObject json = new JObject();
-            var directoryContents = _fileProvider.GetDirectoryContents("swagger/v1");
-            foreach (IFileInfo fi in directoryContents)
+            JObject json = new();
+            var res = await Task.WhenAll(swaggerProviders.Select(provider => provider.Fetch()));
+            foreach (JObject jObject in res)
             {
-                await using var stream = fi.CreateReadStream();
-                using var reader = new StreamReader(fi.CreateReadStream());
-                json.Merge(JObject.Parse(await reader.ReadToEndAsync()));
+                json.Merge(jObject);
             }
             var servers = new JArray();
             servers.Add(new JObject(new JProperty("url", HttpContext.Request.GetAbsoluteRoot())));
             json["servers"] = servers;
+            var tags = (JArray)json["tags"];
+            json["tags"] = new JArray(tags
+                .Select(o => (name: ((JObject)o)["name"].Value<string>(), o))
+                .OrderBy(o => o.name)
+                .Select(o => o.o)
+                .ToArray());
             return Json(json);
         }
 

@@ -160,7 +160,7 @@
             }
             <div class="form-group">
                 <label class="d-flex align-items-center mb-2">
-                    <button type="submit" id="ShowScripting" class="btcpay-toggle me-2 @if (Model.ShowScripting) { @("btcpay-toggle--active") }" value="scripting-@(Model.ShowScripting ? "off" : "on")" name="command" data-bs-toggle="modal" data-bs-target="#ConfirmModal">@(Model.ShowScripting ? "Disable" : "Enable") advanced rate rule scripting</button>
+                    <button type="submit" id="ShowScripting" class="btcpay-toggle me-3 @if (Model.ShowScripting) { @("btcpay-toggle--active") }" value="scripting-@(Model.ShowScripting ? "off" : "on")" name="command" data-bs-toggle="modal" data-bs-target="#ConfirmModal">@(Model.ShowScripting ? "Disable" : "Enable") advanced rate rule scripting</button>
                     <span>Advanced rate rule scripting</span>
                 </label>    
                 <p class="text-muted small form-text">
@@ -170,7 +170,7 @@
             <div class="form-group">
                 <label asp-for="Spread" class="form-label"></label>
                 <div class="input-group">
-                    <input asp-for="Spread" class="form-control" />
+                    <input inputmode="decimal" asp-for="Spread" class="form-control" />
                     <span class="input-group-text">%</span>
                 </div>
                 <span asp-validation-for="Spread" class="text-danger"></span>

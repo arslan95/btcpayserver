@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -55,7 +56,7 @@ namespace BTCPayServer.Controllers
             ExplorerClientProvider explorerProvider,
             LanguageService langService,
             PaymentMethodHandlerDictionary paymentMethodHandlerDictionary,
-            SettingsRepository settingsRepository,
+            PoliciesSettings policiesSettings,
             IAuthorizationService authorizationService,
             EventAggregator eventAggregator,
             AppService appService,
@@ -72,7 +73,7 @@ namespace BTCPayServer.Controllers
             _TokenController = tokenController;
             _WalletProvider = walletProvider;
             _paymentMethodHandlerDictionary = paymentMethodHandlerDictionary;
-            _settingsRepository = settingsRepository;
+            _policiesSettings = policiesSettings;
             _authorizationService = authorizationService;
             _appService = appService;
             DataProtector = dataProtector.CreateProtector("ConfigProtector");
@@ -101,7 +102,7 @@ namespace BTCPayServer.Controllers
         private readonly ExplorerClientProvider _ExplorerProvider;
         private readonly LanguageService _LangService;
         private readonly PaymentMethodHandlerDictionary _paymentMethodHandlerDictionary;
-        private readonly SettingsRepository _settingsRepository;
+        private readonly PoliciesSettings _policiesSettings;
         private readonly IAuthorizationService _authorizationService;
         private readonly AppService _appService;
         private readonly EventAggregator _EventAggregator;
@@ -141,30 +142,43 @@ namespace BTCPayServer.Controllers
             }).ToList();
         }
 
-        public StoreData CurrentStore
-        {
-            get
-            {
-                return this.HttpContext.GetStoreData();
-            }
-        }
-        
+        public StoreData CurrentStore => HttpContext.GetStoreData();
+
         [HttpGet("{storeId}")]
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
             var store = CurrentStore;
             var storeBlob = store.GetStoreBlob();
 
             AddPaymentMethods(store, storeBlob,
                 out var derivationSchemes, out var lightningNodes);
-            
+
+            var walletEnabled = derivationSchemes.Any(scheme => !string.IsNullOrEmpty(scheme.Value) && scheme.Enabled);
+            var lightningEnabled = lightningNodes.Any(ln => !string.IsNullOrEmpty(ln.Address) && ln.Enabled);
             var vm = new StoreDashboardViewModel
             {
-                WalletEnabled = derivationSchemes.Any(scheme => !string.IsNullOrEmpty(scheme.Value) && scheme.Enabled),
-                LightningEnabled = lightningNodes.Any(ln => !string.IsNullOrEmpty(ln.Address) && ln.Enabled),
+                WalletEnabled = walletEnabled,
+                LightningEnabled = lightningEnabled,
                 StoreId = CurrentStore.Id,
-                StoreName = CurrentStore.StoreName
+                StoreName = CurrentStore.StoreName,
+                IsSetUp = walletEnabled || lightningEnabled
             };
+            
+            // Widget data
+            if (vm.WalletEnabled || vm.LightningEnabled)
+            {
+                var userId = GetUserId();
+                var apps = await _appService.GetAllApps(userId, false, store.Id);
+                vm.Apps = apps
+                    .Where(a => a.AppType == AppType.Crowdfund.ToString())
+                    .Select(a =>
+                    {
+                        var appData = _appService.GetAppDataIfOwner(userId, a.Id, AppType.Crowdfund).Result;
+                        appData.StoreData = store;
+                        return appData;
+                    })
+                    .ToList();
+            }
             
             return View("Dashboard", vm);
         }
@@ -237,7 +251,7 @@ namespace BTCPayServer.Controllers
         }
 
         [HttpPost("{storeId}/rates")]
-        public async Task<IActionResult> Rates(RatesViewModel model, string command = null, string storeId = null, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> Rates(RatesViewModel model, string? command = null, string? storeId = null, CancellationToken cancellationToken = default)
         {
             if (command == "scripting-on")
             {
@@ -251,7 +265,7 @@ namespace BTCPayServer.Controllers
             var exchanges = GetSupportedExchanges();
             model.SetExchangeRates(exchanges, model.PreferredExchange);
             model.StoreId = storeId ?? model.StoreId;
-            CurrencyPair[] currencyPairs = null;
+            CurrencyPair[]? currencyPairs = null;
             try
             {
                 currencyPairs = model.DefaultCurrencyPairs?
@@ -285,7 +299,7 @@ namespace BTCPayServer.Controllers
                     return View(model);
                 }
             }
-            RateRules rules = null;
+            RateRules? rules = null;
             if (model.ShowScripting)
             {
                 if (!RateRules.TryParse(model.Script, out rules, out var errors))
@@ -430,26 +444,41 @@ namespace BTCPayServer.Controllers
 
         void SetCryptoCurrencies(CheckoutAppearanceViewModel vm, Data.StoreData storeData)
         {
+            var choices = GetEnabledPaymentMethodChoices(storeData);
+            var chosen = GetDefaultPaymentMethodChoice(storeData);
+
+            vm.PaymentMethods = new SelectList(choices, nameof(chosen.Value), nameof(chosen.Name), chosen?.Value);
+            vm.DefaultPaymentMethod = chosen?.Value;
+        }
+
+        PaymentMethodOptionViewModel.Format[] GetEnabledPaymentMethodChoices(Data.StoreData storeData)
+        {
             var enabled = storeData.GetEnabledPaymentIds(_NetworkProvider);
-            var defaultPaymentId = storeData.GetDefaultPaymentId();
-            var defaultChoice = defaultPaymentId is not null ? defaultPaymentId.FindNearest(enabled) : null;
-            if (defaultChoice is null)
-            {
-                defaultChoice = enabled.FirstOrDefault(e => e.CryptoCode == "BTC" && e.PaymentType == PaymentTypes.BTCLike) ??
-                                enabled.FirstOrDefault(e => e.CryptoCode == "BTC" && e.PaymentType == PaymentTypes.LightningLike) ??
-                                enabled.FirstOrDefault();
-            }
-            var choices = enabled
+            
+            return enabled
                 .Select(o =>
-                    new CheckoutAppearanceViewModel.Format()
+                    new PaymentMethodOptionViewModel.Format()
                     {
                         Name = o.ToPrettyString(),
                         Value = o.ToString(),
                         PaymentId = o
                     }).ToArray();
-            var chosen = defaultChoice is null ? null : choices.FirstOrDefault(c => defaultChoice.ToString().Equals(c.Value, StringComparison.OrdinalIgnoreCase));
-            vm.PaymentMethods = new SelectList(choices, nameof(chosen.Value), nameof(chosen.Name), chosen?.Value);
-            vm.DefaultPaymentMethod = chosen?.Value;
+        }
+
+        PaymentMethodOptionViewModel.Format? GetDefaultPaymentMethodChoice(Data.StoreData storeData)
+        {
+            var enabled = storeData.GetEnabledPaymentIds(_NetworkProvider);
+            var defaultPaymentId = storeData.GetDefaultPaymentId();
+            var defaultChoice = defaultPaymentId is not null ? defaultPaymentId.FindNearest(enabled) : null;
+            if (defaultChoice is null)
+            {
+                defaultChoice = enabled.FirstOrDefault(e => e.CryptoCode == _NetworkProvider.DefaultNetwork.CryptoCode && e.PaymentType == PaymentTypes.BTCLike) ??
+                                enabled.FirstOrDefault(e => e.CryptoCode == _NetworkProvider.DefaultNetwork.CryptoCode && e.PaymentType == PaymentTypes.LightningLike) ??
+                                enabled.FirstOrDefault();
+            }
+            var choices = GetEnabledPaymentMethodChoices(storeData);
+
+            return defaultChoice is null ? null : choices.FirstOrDefault(c => defaultChoice.ToString().Equals(c.Value, StringComparison.OrdinalIgnoreCase));
         }
 
         [HttpPost]
@@ -624,7 +653,7 @@ namespace BTCPayServer.Controllers
         }
 
         [HttpPost("{storeId}/settings")]
-        public async Task<IActionResult> GeneralSettings(GeneralSettingsViewModel model, string command = null)
+        public async Task<IActionResult> GeneralSettings(GeneralSettingsViewModel model, string? command = null)
         {
             bool needUpdate = false;
             if (CurrentStore.StoreName != model.StoreName)
@@ -755,7 +784,7 @@ namespace BTCPayServer.Controllers
                 TempData[WellKnownTempData.ErrorMessage] = "Failure to revoke this token.";
             else
                 TempData[WellKnownTempData.SuccessMessage] = "Token revoked";
-            return RedirectToAction(nameof(ListTokens), new { storeId = token.StoreId });
+            return RedirectToAction(nameof(ListTokens), new { storeId = token?.StoreId });
         }
 
         [HttpGet]
@@ -790,7 +819,7 @@ namespace BTCPayServer.Controllers
                 Id = model.PublicKey == null ? null : NBitpayClient.Extensions.BitIdExtensions.GetBitIDSIN(new PubKey(model.PublicKey).Compress())
             };
 
-            string pairingCode = null;
+            string? pairingCode = null;
             if (model.PublicKey == null)
             {
                 tokenRequest.PairingCode = await _TokenRepository.CreatePairingCodeAsync();
@@ -815,7 +844,7 @@ namespace BTCPayServer.Controllers
             });
         }
 
-        public string GeneratedPairingCode { get; set; }
+        public string? GeneratedPairingCode { get; set; }
         public WebhookSender WebhookNotificationManager { get; }
         public IDataProtector DataProtector { get; }
 
@@ -888,7 +917,7 @@ namespace BTCPayServer.Controllers
         [HttpGet]
         [Route("/api-access-request")]
         [AllowAnonymous]
-        public async Task<IActionResult> RequestPairing(string pairingCode, string selectedStore = null)
+        public async Task<IActionResult> RequestPairing(string pairingCode, string? selectedStore = null)
         {
             var userId = GetUserId();
             if (userId == null)
@@ -964,9 +993,9 @@ namespace BTCPayServer.Controllers
             }
         }
 
-        private string GetUserId()
+        private string? GetUserId()
         {
-            if (User.Identity.AuthenticationType != AuthenticationSchemes.Cookie)
+            if (User.Identity?.AuthenticationType != AuthenticationSchemes.Cookie)
                 return null;
             return _UserManager.GetUserId(User);
         }
@@ -998,6 +1027,8 @@ namespace BTCPayServer.Controllers
             {
                 Price = null,
                 Currency = storeBlob.DefaultCurrency,
+                DefaultPaymentMethod = String.Empty,
+                PaymentMethods = GetEnabledPaymentMethodChoices(store),
                 ButtonSize = 2,
                 UrlRoot = appUrl,
                 PayButtonImageUrl = appUrl + "img/paybutton/pay.svg",

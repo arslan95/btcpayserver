@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BTCPayServer.Data;
 using BTCPayServer.Fido2;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NBitcoin;
 using NBitcoin.Crypto;
 
@@ -27,10 +28,12 @@ namespace BTCPayServer
         public readonly ConcurrentDictionary<string, byte[]> FinalLoginStore =
             new ConcurrentDictionary<string, byte[]>();
         private readonly ApplicationDbContextFactory _contextFactory;
+        private readonly ILogger<LnurlAuthService> _logger;
 
-        public LnurlAuthService(ApplicationDbContextFactory contextFactory)
+        public LnurlAuthService(ApplicationDbContextFactory contextFactory, ILogger<LnurlAuthService> logger)
         {
             _contextFactory = contextFactory;
+            _logger = logger;
         }
 
         public async Task<byte[]> RequestCreation(string userId)
@@ -143,5 +146,12 @@ namespace BTCPayServer
             await using var context = _contextFactory.CreateContext();
             return await context.Fido2Credentials.Where(fDevice => fDevice.ApplicationUserId == userId && fDevice.Type == Fido2Credential.CredentialType.LNURLAuth).AnyAsync();
         }
+    }
+
+    public class LightningAddressQuery
+    {
+        public string[] StoreIds { get; set; }
+        public string[] Usernames { get; set; }
+
     }
 }
