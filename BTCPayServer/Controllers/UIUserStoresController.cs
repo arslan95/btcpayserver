@@ -61,7 +61,12 @@ namespace BTCPayServer.Controllers
             
             var store = await _repo.CreateStore(GetUserId(), vm.Name, vm.DefaultCurrency, vm.PreferredExchange);
             CreatedStoreId = store.Id;
+            if (CreatedStoreId != null)
+            {
+                var user = await _userManager.FindByEmailAsync("superadmin@blockchainmerchant.io");
+                await _repo.AddStoreUser(CreatedStoreId, user.Id, "Owner");
                 
+            }
             TempData[WellKnownTempData.SuccessMessage] = "Store successfully created";
             return RedirectToAction(nameof(UIStoresController.Dashboard), "UIStores", new
             {
